@@ -13,17 +13,18 @@ class MainViewModel : ViewModel() {
 
     var useCases: UseCases = UseCases()
     private val compositeDisposable by lazy { CompositeDisposable() }
-
     var imageAnalyzer: ImageAnalyzer? = null
 
     init {
+        compositeDisposable.add(
         useCases.getRecognitionResultFlow().subscribe() { result ->
             when (result) {
-                "Ni" -> Log.i("*#NI*#", "Success Ni")
-                "Hu" -> Log.i("*#Hu*#", "Success Hu")
-                "Ya" -> Log.i("*#Ya*#", "Success Ya")
+                "Ni" -> Log.i("*#RecognitionResult*#", "Success Ni")
+                "Hu" -> Log.i("*#RecognitionResult*#", "Success Hu")
+                "Ya" -> Log.i("*#RecognitionResult*#", "Success Ya")
+                "nothing" -> Log.i("*#RecognitionResult*#", "Success Ya")
             }
-        }
+        })
     }
 
     fun imageAnalyzerInit(
