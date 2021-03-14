@@ -2,6 +2,7 @@ package com.example.cameraxapp.presentation
 
 import android.util.Log
 import androidx.camera.view.PreviewView
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.example.cameraxapp.domain.UseCases
@@ -10,12 +11,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
+class MainViewModel @ViewModelInject constructor(
     useCases: UseCases,
     private val imageAnalyzer: ImageAnalyzer
 ): ViewModel() {
-
     private val compositeDisposable by lazy { CompositeDisposable() }
 
     init {

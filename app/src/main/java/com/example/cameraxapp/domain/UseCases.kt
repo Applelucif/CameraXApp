@@ -1,6 +1,5 @@
 package com.example.cameraxapp.domain
 
-import android.util.Log
 import com.example.cameraxapp.data.LocalDataSource
 import io.reactivex.Flowable
 import java.util.concurrent.TimeUnit
@@ -12,9 +11,6 @@ import kotlin.math.hypot
 class UseCases @Inject constructor(
     private val dataSource: LocalDataSource
 ) {
-    init {
-        Log.i("INIT", "UseCase init")
-    }
 
     fun getRecognitionResultFlow(): Flowable<String> {
         return dataSource

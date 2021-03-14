@@ -21,7 +21,7 @@ import java.util.concurrent.Executors
 import javax.inject.Inject
 
 class ImageAnalyzer @Inject constructor(
-    private val context: Context,
+    @ActivityContext private val context: Context,
     private val localDataSource: LocalDataSource
 ) : ImageAnalysis.Analyzer {
     private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
