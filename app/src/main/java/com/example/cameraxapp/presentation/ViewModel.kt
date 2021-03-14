@@ -1,19 +1,22 @@
 package com.example.cameraxapp.presentation
 
-import android.content.Context
 import android.util.Log
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.example.cameraxapp.domain.UseCases
 import com.example.cameraxapp.framework.ImageAnalyzer
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.disposables.CompositeDisposable
+import javax.inject.Inject
 
-class MainViewModel : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    useCases: UseCases,
+    private val imageAnalyzer: ImageAnalyzer
+): ViewModel() {
 
-    var useCases: UseCases = UseCases()
     private val compositeDisposable by lazy { CompositeDisposable() }
-    var imageAnalyzer: ImageAnalyzer? = null
 
     init {
         compositeDisposable.add(
@@ -27,18 +30,16 @@ class MainViewModel : ViewModel() {
         })
     }
 
-    fun imageAnalyzerInit(
+    fun startAnalyze(
         lifecycleOwner: LifecycleOwner,
-        context: Context,
         viewFinder: PreviewView
     ) {
-        imageAnalyzer = ImageAnalyzer(lifecycleOwner, context, viewFinder)
+        imageAnalyzer.startAnalyze(lifecycleOwner, viewFinder)
     }
 
     override fun onCleared() {
         super.onCleared()
         compositeDisposable.clear()
-        imageAnalyzer?.stopCamera()
-        imageAnalyzer = null
+        imageAnalyzer.stopCamera()
     }
 }

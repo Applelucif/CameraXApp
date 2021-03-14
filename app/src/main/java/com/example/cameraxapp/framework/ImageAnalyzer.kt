@@ -15,26 +15,24 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
+import dagger.hilt.android.qualifiers.ActivityContext
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class ImageAnalyzer(
-    private var lifecycleOwner: LifecycleOwner,
-    context: Context,
-    private var viewFinder: PreviewView
-) :
-    ImageAnalysis.Analyzer {
-    private var cameraExecutor: ExecutorService
+class ImageAnalyzer @Inject constructor(
+    private val context: Context,
+    private val localDataSource: LocalDataSource
+) : ImageAnalysis.Analyzer {
+    private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private var imageCapture: ImageCapture? = null
     private val preview by lazy { Preview.Builder().build() }
 
-    init {
+    fun startAnalyze(lifecycleOwner: LifecycleOwner, viewFinder: PreviewView) {
         getCameraPreview()
             .also {
                 it.setSurfaceProvider(viewFinder.surfaceProvider)
             }
-
-        cameraExecutor = Executors.newSingleThreadExecutor()
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
@@ -94,42 +92,48 @@ class ImageAnalyzer(
                     if (results.allPoseLandmarks.size != 0) {
                         Log.i("#SuccessPoseDetect#", "Pose detect is success")
 
-                        val leftShoulderE = results.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
-                        val leftShoulder = BodyPartCoord(
-                            BodyPart.LEFT_SHOULDER,
-                            leftShoulderE.position.x,
-                            leftShoulderE.position.y
-                        )
-                        val leftElbowA = results.getPoseLandmark(PoseLandmark.LEFT_ELBOW)
-                        val leftElbow = BodyPartCoord(
-                            BodyPart.LEFT_ELBOW,
-                            leftElbowA.position.x,
-                            leftElbowA.position.y
-                        )
-                        val rightElbowB = results.getPoseLandmark(PoseLandmark.RIGHT_ELBOW)
-                        val rightElbow = BodyPartCoord(
-                            BodyPart.RIGHT_ELBOW,
-                            rightElbowB.position.x,
-                            rightElbowB.position.y
-                        )
-                        val leftWristC = results.getPoseLandmark(PoseLandmark.LEFT_WRIST)
-                        val leftWrist = BodyPartCoord(
-                            BodyPart.LEFT_WRIST,
-                            leftWristC.position.x,
-                            leftWristC.position.y
-                        )
-                        val rightWristD = results.getPoseLandmark(PoseLandmark.RIGHT_WRIST)
-                        val rightWrist = BodyPartCoord(
-                            BodyPart.RIGHT_WRIST,
-                            rightWristD.position.x,
-                            rightWristD.position.y
-                        )
-
-                        val list: List<BodyPartCoord> =
-                            listOf(leftShoulder, leftElbow, rightElbow, leftWrist, rightWrist)
-
-                        val localData = LocalDataSource()
-                        localData.addCoords(list)
+                        val newList = mutableListOf<BodyPartCoord>()
+                        results.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)?.apply {
+                            val leftShoulder = BodyPartCoord(
+                                BodyPart.RIGHT_WRIST,
+                                position.x,
+                                position.y
+                            )
+                            newList.add(leftShoulder)
+                        }
+                        results.getPoseLandmark(PoseLandmark.LEFT_ELBOW)?.apply {
+                            val leftElbow = BodyPartCoord(
+                                BodyPart.RIGHT_WRIST,
+                                position.x,
+                                position.y
+                            )
+                            newList.add(leftElbow)
+                        }
+                        results.getPoseLandmark(PoseLandmark.RIGHT_ELBOW)?.apply {
+                            val rightElbow = BodyPartCoord(
+                                BodyPart.RIGHT_WRIST,
+                                position.x,
+                                position.y
+                            )
+                            newList.add(rightElbow)
+                        }
+                        results.getPoseLandmark(PoseLandmark.LEFT_WRIST)?.apply {
+                            val leftWrist = BodyPartCoord(
+                                BodyPart.RIGHT_WRIST,
+                                position.x,
+                                position.y
+                            )
+                            newList.add(leftWrist)
+                        }
+                        results.getPoseLandmark(PoseLandmark.RIGHT_WRIST)?.apply {
+                            val rightWrist = BodyPartCoord(
+                                BodyPart.RIGHT_WRIST,
+                                position.x,
+                                position.y
+                            )
+                            newList.add(rightWrist)
+                        }
+                        localDataSource.addCoords(newList)
                     }
                     imageProxy.close()
                 }

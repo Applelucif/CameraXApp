@@ -1,18 +1,22 @@
 package com.example.cameraxapp.domain
 
+import android.util.Log
 import com.example.cameraxapp.data.LocalDataSource
 import io.reactivex.Flowable
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
 
-class UseCases {
-
-    var dataSource = LocalDataSource()
+class UseCases @Inject constructor(
+    private val dataSource: LocalDataSource
+) {
+    init {
+        Log.i("INIT", "UseCase init")
+    }
 
     fun getRecognitionResultFlow(): Flowable<String> {
-
         return dataSource
             .getCoordsFlow()
             .onBackpressureDrop()
@@ -24,7 +28,6 @@ class UseCases {
 
     private fun detectPose(array: List<BodyPartCoord>): String {
 
-        val leftShoulderX = array[0].x
         val leftShoulderY = array[0].y
         val leftElbowAX = array[1].x
         val leftElbowAY = array[1].y

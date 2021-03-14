@@ -3,8 +3,11 @@ package com.example.cameraxapp.data
 import com.example.cameraxapp.domain.BodyPartCoord
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class LocalDataSource {
+@Singleton
+class LocalDataSource @Inject constructor() {
 
     private val coordsAddProcessor = BehaviorProcessor.create<List<BodyPartCoord>>()
 
