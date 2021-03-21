@@ -88,7 +88,7 @@ class UseCases @Inject constructor(
         }
 
         if ((angle in 160.0..190.0) && isLeftHandPositionHorizontal && isRightHandPositionHorizontal && (distanceAD >= 0.5 * distanceAC) && isHandsOnSameX) {
-            return "Ja"
+            return "Ya"
         }
         return "nothing"
     }

@@ -11,11 +11,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.cameraxapp.R
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private val compositeDisposable by lazy { CompositeDisposable() }
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +35,29 @@ class MainActivity : AppCompatActivity() {
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
         }
+        compositeDisposable.add(
+            viewModel.getResultFlow().subscribe() { result ->
+                when (result) {
+                    "Ni" -> image.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            this,
+                            R.drawable.second_image
+                        )
+                    )
+                    "Hu" -> image.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            this,
+                            R.drawable.third_image
+                        )
+                    )
+                    "Ya" -> Toast.makeText(this, "Идеально!", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    override fun onStop() {
+        super.onStop()
+        compositeDisposable.clear()
     }
 
     private fun allPermissionsGranted(baseContext: Context) = REQUIRED_PERMISSIONS.all {

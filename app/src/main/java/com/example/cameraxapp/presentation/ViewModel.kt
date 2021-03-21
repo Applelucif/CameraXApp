@@ -7,26 +7,39 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.example.cameraxapp.domain.UseCases
 import com.example.cameraxapp.framework.ImageAnalyzer
-import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
-import javax.inject.Inject
+import io.reactivex.processors.BehaviorProcessor
 
 class MainViewModel @ViewModelInject constructor(
     useCases: UseCases,
     private val imageAnalyzer: ImageAnalyzer
-): ViewModel() {
+) : ViewModel() {
     private val compositeDisposable by lazy { CompositeDisposable() }
+    private val resultAddProcessor = BehaviorProcessor.create<String>()
+    private var poseCount = 1
 
     init {
         compositeDisposable.add(
-        useCases.getRecognitionResultFlow().subscribe() { result ->
-            when (result) {
-                "Ni" -> Log.i("*#RecognitionResult*#", "Success Ni")
-                "Hu" -> Log.i("*#RecognitionResult*#", "Success Hu")
-                "Ya" -> Log.i("*#RecognitionResult*#", "Success Ya")
-                "nothing" -> Log.i("*#RecognitionResult*#", "Success Ya")
-            }
-        })
+            useCases.getRecognitionResultFlow().subscribe() { result ->
+                if (result == "Ni" && poseCount == 1) {
+                    resultAddProcessor.onNext("Ni")
+                    poseCount = 2
+                }
+                if (result == "Hu" && poseCount == 2) {
+                    resultAddProcessor.onNext("Hu")
+                    poseCount = 3
+                }
+                if (result == "Ya" && poseCount == 3) {
+                    resultAddProcessor.onNext("Ya")
+                    poseCount = 4
+                }
+                if (result == "nothing") Log.i ("#*RecognitionResult", "Pose not found")
+            })
+    }
+
+    fun getResultFlow(): Flowable<String> {
+        return resultAddProcessor
     }
 
     fun startAnalyze(
